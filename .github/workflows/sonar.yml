@@ -1,0 +1,44 @@
+name: SonarCloud Scan
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build and analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@ba3875ecf642b2129de2b589510c81a8b53dbf4e
+        with:
+          args: >
+            -Dsonar.projectKey=devmustafashf1_sonar-testing
+            -Dsonar.organization=devmustafashf1
+            -Dsonar.sources=.
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.host.url=https://sonarcloud.io
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
